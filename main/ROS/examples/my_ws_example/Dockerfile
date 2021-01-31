@@ -14,3 +14,7 @@ ros2 pkg create --build-type ament_python --node-name my_node my_first_package
 
 RUN colcon build
 RUN . install/setup.bash
+
+
+
+
