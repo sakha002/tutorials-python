@@ -20,6 +20,7 @@ RUN mkdir msg
 WORKDIR $ROS2_WS/src/addressbook_msg/msg
 
 ADD ./addressbook_msg/msg/AddressBook.msg .
+ADD ./addressbook_msg/msg/Address.msg .
 
 # WORKDIR $ROS2_WS/src/addressbook_msg/srv
 # ADD ./AddThreeInts.srv .

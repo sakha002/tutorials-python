@@ -22,8 +22,8 @@ class MinimalPublisher(Node):
         message.last_name = "Doe"
         message.age = 30
         message.gender = message.MALE
-        message.address = "unknown"
-        # message.address.street= '120'
+        message.address.city = "unknown"
+        message.address.street= '120'
 
         # msg.data = 'Hello World: %d' % self.i
         self.publisher_.publish(message)
