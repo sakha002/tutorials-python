@@ -2,7 +2,7 @@
 import rclpy
 from rclpy.node import Node
 
-from rclpy.clock import Clock
+from rclpy.clock import Clock, ClockType
 from rclpy.time import Time
 
 from builtin_interfaces.msg import Time
@@ -22,6 +22,10 @@ class TimePublisher(Node):
         self.i = 0
 
     def timer_callback(self):
+
+        clock = Clock(clock_type=ClockType.ROS_TIME)
+
+        message 
 
         message = Clock().now().to_msg()
 

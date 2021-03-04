@@ -4,7 +4,7 @@ from rclpy.node import Node
 # from rclpy.time import Time
 # from rclpy.clock import Clock
 
-from rcl_interfaces.builtin_interfaces.msg import Time
+from builtin_interfaces.msg import Time
 
 class TimeSubscriber(Node):
 
