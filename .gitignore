@@ -6,6 +6,8 @@ __pycache__/
 # C extensions
 *.so
 
+
+
 # Distribution / packaging
 .Python
 build/
@@ -133,3 +135,5 @@ unprocessed/
 .pyre/
 
 .vscode/
+main/.DS_Store
+main/ml_bootcamp_course
