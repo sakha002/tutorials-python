@@ -8,4 +8,4 @@ ENV SPARK_MASTER_LOG /spark/logs
 
 EXPOSE 8080 7077 6066
 
-CMD ["/bin/bash", "/saprk-master.sh"]
+CMD ["/bin/bash", "/spark-master.sh"]
