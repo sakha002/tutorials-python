@@ -16,6 +16,7 @@ build() {
 build base
 build master
 build worker
+build jupyterlab
 # build notebook
 # build submit
 # # build java-template template/java

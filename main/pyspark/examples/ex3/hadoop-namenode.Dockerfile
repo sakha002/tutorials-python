@@ -1,4 +1,4 @@
-FROM hadoop-base:2.0.0-hadoop3.2.1-java8
+FROM hadoop-base:2.0.0-hadoop3.2.0-java8
 
 
 HEALTHCHECK CMD curl -f http://localhost:9870/ || exit 1

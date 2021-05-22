@@ -1,8 +1,9 @@
 version: '2' 
 services:
   namenode:
-    image: hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    image: hadoop-namenode:2.0.0-hadoop3.2.0-java8
     container_name: namenode
+    restart: always
     volumes:
       - ./data/namenode:/hadoop/dfs/name
     environment:
@@ -10,17 +11,21 @@ services:
     env_file:
       - ./hadoop.env
     ports:
-      - 50070:50070
+      - 9870:9870
+
   datanode:
-    image: hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    image: hadoop-datanode:2.0.0-hadoop3.2.0-java8
     depends_on: 
       - namenode
+    restart: always
     volumes:
       - ./data/datanode:/hadoop/dfs/data
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870"
     env_file:
       - ./hadoop.env
     ports:
-      - 50075:50075
+      - 9864:9864
   spark-master:
     image: spark-master:3.1.1-hadoop3.2
     container_name: spark-master
@@ -39,13 +44,13 @@ services:
       - 8081:8081
     env_file:
       - ./hadoop.env
-  spark-notebook:
-    image: bde2020/spark-notebook:2.1.0-hadoop2.8-hive
-    container_name: spark-notebook
+  pyspark-notebook:
+    image: spark-jupyterlab:3.1.1-hadoop3.2
+    container_name: pyspark-notebook
     env_file:
       - ./hadoop.env
     ports:
-      - 9001:9001
+      - 8888:8888
   hue:
     image: bde2020/hdfs-filebrowser:3.11
     ports:
