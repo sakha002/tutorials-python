@@ -21,8 +21,8 @@ VOLUME ${shared_workspace}
 
 # -- Layer: JupyterLab
 
-# ARG spark_version=3.1.1
-ARG spark_version=2.1.2
+ARG spark_version=3.1.1
+# ARG spark_version=2.1.2
 
 ARG jupyterlab_version=2.1.5
 

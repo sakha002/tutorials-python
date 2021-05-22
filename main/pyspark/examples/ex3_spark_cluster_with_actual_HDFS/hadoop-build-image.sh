@@ -17,6 +17,7 @@ build() {
 build base
 build namenode
 build datanode
+build filebrowser
 # build resourcemanager
 # build nodemanager
 # build historyserver
