@@ -10,7 +10,7 @@ import pyomo.environ as aml
 class Solver:
     def __init__(
         self,
-        solver: str = "cbc",
+        solver: str = "glpk",
         solver_params: dict = None,
         ):
         self.optimizer = aml.SolverFactory(solver)
