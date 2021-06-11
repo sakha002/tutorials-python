@@ -36,7 +36,7 @@ def RunLinearExampleNaturalLanguageAPI(optimization_problem_type):
     x3 = solver.NumVar(0.0, infinity, 'x3')
 
     solver.Maximize(10 * x1 + 6 * x2 + 4 * x3)
-    c0 = solver.Add(10 * x1 + 4 * x2 + 5 * x3 <= 600, 'ConstraintName0')
+    c0 = solver.x (10 * x1 + 4 * x2 + 5 * x3 <= 600, 'ConstraintName0')
     c1 = solver.Add(2 * x1 + 2 * x2 + 6 * x3 <= 300)
     sum_of_vars = sum([x1, x2, x3])
     c2 = solver.Add(sum_of_vars <= 100.0, 'OtherConstraintName')
