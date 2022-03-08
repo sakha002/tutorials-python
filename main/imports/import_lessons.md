@@ -336,6 +336,54 @@ Or perhaps you don't actually want to run moduleX, you just want to run some oth
 
 (I guess this will be the most confusing case, the moduleX is developed and has its own relative imports, which would work fine, but if we call a script in that same directory, all of those relative imports would run into error)
 
-so consuing enough still! and I guess I have read this how many times?
+so consuing enough still! and I guess I have read this how many times (and I am sure i will get back to it more and more)
 
 so again as some elder said in this same link, the solution is simple, don't do relative imports! (if possible)
+
+
+
+## Update on repo structure
+
+
+so on the question of where to put tests, I went over two of my favourite Porjects (or-tools and tensorflow).
+I saw some interesting patterns.
+In the or-tools they had put the tests as part of the examples, which makes sense to me since at least in my case a lot of these test has some elements in common with examples.
+In the TF repo, they did not seem to have a separate directory in the top levels and instead it seemed it was dispeared over the different pieaces.
+i.e for example Keras had its own test directory and some of the tests where just alongside the actual codes.
+
+So if we have a large library/package, I guess putting the test
+
+
+In ortools  I saw docs and examples at the top level.
+in TensorFlow, I found examples in the 2nd level i.e. under the tensorflow, and the docs were an entire seperate repo.
+
+so overall seems, whatever fits, it fits!
+
+
+## VERY IMPORTANT UPDATE:
+
+
+The key here is that, by default, Python includes the folder of the script in its search path, BUT NOT THE CWD. 
+
+
+
+
+# Update August 2021
+
+So this is still the question on correct way of seeting up references (imports and file read/write) to work properly on testing and third environments. The focus on Applications.
+
+## the question is from src or from root
+
+- pytest figures out how to interpret refs based the conftest.py, so it is not an issue there
+- imports can be figured out to be indifferent by using the context.py.
+-  for debuging, VSCODE assumes the directory of current window  as wd.
+-  the repo root seems a safer option.
+-   still I like better to take "src" as the point of reference, then it means that I won't have to write imports like "from src.blah import blahblah"
+-   what is the problem with this?
+    -    it would be mostly for reading/writing files that have "." or "cwd" used in them somehow.
+    -   The user, would need to run the scripts from the src (i.e. cwd as src).
+    -   if one go to the directory of the script and  run it or run it from the repo root, it won't work.
+    -   this could become a scneario only for the testing, i.e. when a third party tries to run/test the script.
+    -   It would be good if could make file read paths to be based on the "file" not cwd.
+    -  talking to coleagues and veterans seems like having the src as the reference for imports is the actual best practice for other languages as well.
+  
