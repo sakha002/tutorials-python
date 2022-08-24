@@ -1,0 +1,73 @@
+{
+    "prices":[
+        {
+            "name": "DAM_Price_at_Houston",
+            "market": "DAM",
+            "settlement_point": "houston"
+        },
+        {
+            "name": "DAM_Price_at_west",
+            "market": "DAM",
+            "settlement_point": "west"
+        }
+    ],
+    "portfolio":{
+        "name": "Engie",
+        "assets": [
+            {
+                "name": "Battery1",
+                "type": "batteryIFOM",
+                "properties": {"prop1": "val1"}
+            },
+            {
+                "name": "Battery2",
+                "type": "battery",
+                "properties": {"prop1": "val1"}
+            },
+            {
+                "name": "solar1",
+                "type": "PV",
+                "properties": {"prop1": "val1"}
+
+            },
+            {
+                "name":"load1",
+                "type": "flexible_load",
+                "properties": {"prop1": "val1"}
+
+            }
+
+        ],
+        "asset_groups": [
+            {
+                "name": "asset_group_in_Houston",
+                "type": "site",
+                "asset_names": [
+                    "Battery1",
+                    "solar1"
+                ],
+                "price_name": "DAM_Price_at_Houston",
+                "properties": {"prop1": "val1"}
+            },
+            {
+                "name": "asset_group_in_Houston",
+                "type": "meter",
+                "asset_names": [
+                    "Battery1"
+                ],
+                "price_name": "DAM_Price_at_Houston",
+                "properties": {"prop1": "val1"}
+            },
+            {
+                "name": "asset_group_in_west",
+                "type": "meter",
+                "asset_names": [
+                    "Battery2"
+                ],
+                "price_name": "DAM_Price_at_west",
+                "properties": {"prop1": "val1"}
+
+            }
+        ]
+    }
+}
