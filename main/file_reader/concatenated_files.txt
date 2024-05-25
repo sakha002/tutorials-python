@@ -1,0 +1,175 @@
+##### ex1/mpi_one_sided_test.py
+# This software is distributed under the 3-clause BSD License.
+''' Basic test script to make sure that the one-sided MPI calls work as
+    intended. Runs on two processes. Will raise an assertion error if the
+    Lock/Get/Unlock combination blocks. Otherwise, exits normally and produces
+    no output.
+
+    Just because this test passes doesn't mean that MPI one-sided calls will
+    work as expected.
+
+    Takes about 4 seconds to execute, with all the sleep() calls.
+'''
+import mpi4py.MPI as mpi
+import numpy as np
+import time
+
+def main():
+    assert(mpi.COMM_WORLD.Get_size() == 2)
+    rank = mpi.COMM_WORLD.Get_rank()
+
+    array_size = 10
+    win = mpi.Win.Allocate(mpi.DOUBLE.size*array_size, mpi.DOUBLE.size, 
+                           comm=mpi.COMM_WORLD)
+    buff = np.ndarray(buffer=win.tomemory(), dtype='d', shape=(array_size,)) 
+     
+    if (rank == 0):
+        buff[:] = 3. * np.ones(array_size, dtype='d')
+        time.sleep(3)
+        buff[:] = np.arange(array_size)
+
+        win.Lock(1)
+        win.Put((buff, array_size, mpi.DOUBLE), target_rank=1)
+        win.Unlock(1)
+
+    elif (rank == 1):
+        buff = np.ones(array_size, dtype='d')
+        time.sleep(1)
+
+        win.Lock(0)
+        win.Get((buff, array_size, mpi.DOUBLE), target_rank=0)
+        win.Unlock(0)
+
+        assert(buff[-1] == 3.)
+
+        time.sleep(3)
+
+        win.Lock(1)
+        win.Get((buff, array_size, mpi.DOUBLE), target_rank=1)
+        win.Unlock(1)
+
+        assert(buff[-1] == array_size-1)
+
+    del buff # Important!
+    win.Free()
+
+if __name__=='__main__':
+    main()
+
+
+
+##### ex2/ReferenceModel.py
+#  ___________________________________________________________________________
+#
+#  Pyomo: Python Optimization Modeling Objects
+#  Copyright 2017 National Technology and Engineering Solutions of Sandia, LLC
+#  Under the terms of Contract DE-NA0003525 with National Technology and 
+#  Engineering Solutions of Sandia, LLC, the U.S. Government retains certain 
+#  rights in this software.
+#  This software is distributed under the 3-clause BSD License.
+#  ___________________________________________________________________________
+
+# Farmer: rent out version has a scalar root node var
+# note: this will minimize
+#
+# Imports
+#
+
+from pyomo.core import *
+
+#
+# Model
+#
+
+model = AbstractModel()
+
+#
+# Parameters
+#
+
+model.CROPS = Set()
+
+model.TOTAL_ACREAGE = Param(within=PositiveReals)
+
+model.PriceQuota = Param(model.CROPS, within=PositiveReals)
+
+model.SubQuotaSellingPrice = Param(model.CROPS, within=PositiveReals)
+
+def super_quota_selling_price_validate (model, value, i):
+    return model.SubQuotaSellingPrice[i] >= model.SuperQuotaSellingPrice[i]
+
+model.SuperQuotaSellingPrice = Param(model.CROPS, validate=super_quota_selling_price_validate)
+
+model.CattleFeedRequirement = Param(model.CROPS, within=NonNegativeReals)
+
+model.PurchasePrice = Param(model.CROPS, within=PositiveReals)
+
+model.PlantingCostPerAcre = Param(model.CROPS, within=PositiveReals)
+
+model.Yield = Param(model.CROPS, within=NonNegativeReals)
+
+#
+# Variables
+#
+
+model.DevotedAcreage = Var(model.CROPS, bounds=(0.0, model.TOTAL_ACREAGE))
+
+model.QuantitySubQuotaSold = Var(model.CROPS, bounds=(0.0, None))
+model.QuantitySuperQuotaSold = Var(model.CROPS, bounds=(0.0, None))
+
+model.QuantityPurchased = Var(model.CROPS, bounds=(0.0, None))
+
+#
+# Constraints
+#
+
+def ConstrainTotalAcreage_rule(model):
+    return summation(model.DevotedAcreage) <= model.TOTAL_ACREAGE
+
+model.ConstrainTotalAcreage = Constraint(rule=ConstrainTotalAcreage_rule)
+
+def EnforceCattleFeedRequirement_rule(model, i):
+    return model.CattleFeedRequirement[i] <= (model.Yield[i] * model.DevotedAcreage[i]) + model.QuantityPurchased[i] - model.QuantitySubQuotaSold[i] - model.QuantitySuperQuotaSold[i]
+
+model.EnforceCattleFeedRequirement = Constraint(model.CROPS, rule=EnforceCattleFeedRequirement_rule)
+
+def LimitAmountSold_rule(model, i):
+    return model.QuantitySubQuotaSold[i] + model.QuantitySuperQuotaSold[i] - (model.Yield[i] * model.DevotedAcreage[i]) <= 0.0
+
+model.LimitAmountSold = Constraint(model.CROPS, rule=LimitAmountSold_rule)
+
+def EnforceQuotas_rule(model, i):
+    return (0.0, model.QuantitySubQuotaSold[i], model.PriceQuota[i])
+
+model.EnforceQuotas = Constraint(model.CROPS, rule=EnforceQuotas_rule)
+
+#
+# Stage-specific cost computations
+#
+
+def ComputeFirstStageCost_rule(model):
+    return summation(model.PlantingCostPerAcre, model.DevotedAcreage)
+
+model.FirstStageCost = Expression(rule=ComputeFirstStageCost_rule)
+
+def ComputeSecondStageCost_rule(model):
+    expr = summation(model.PurchasePrice, model.QuantityPurchased)
+    expr -= summation(model.SubQuotaSellingPrice, model.QuantitySubQuotaSold)
+    expr -= summation(model.SuperQuotaSellingPrice, model.QuantitySuperQuotaSold)
+    return expr
+
+model.SecondStageCost = Expression(rule=ComputeSecondStageCost_rule)
+
+#
+# PySP Auto-generated Objective
+#
+# minimize: sum of StageCosts
+#
+# An active scenario objective equivalent to that generated by PySP is
+# included here for informational purposes.
+def total_cost_rule(model):
+    return model.FirstStageCost + model.SecondStageCost
+model.Total_Cost_Objective = Objective(rule=total_cost_rule, sense=minimize)
+
+##### ex2/__init__.py
+
